@@ -1,0 +1,21 @@
+#!/bin/bash 
+if [ ${#} -ne 2 ]; then
+        echo "Incorrect number of command-line arguments to produceOutputs" >&2
+        exit 3
+fi
+
+for val in $(cat $1); do
+        if [ ! -r "${val}.in" ]; then
+		if [ -r "${val}.args" ]; then	
+			$2 $(cat ${val}.args)>${val}.out
+        	fi
+	fi
+
+	if [ -r "${val}.in" ]; then
+		if [ -r "${val}.args" ]; then
+			$2 $(cat ${val}.args)<${val}.in>${val}.out
+		else
+			$2 <${val}.in>${val}.out
+		fi
+	fi
+done

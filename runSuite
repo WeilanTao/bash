@@ -1,0 +1,35 @@
+#!/bin/bash 
+
+if [ ${#} -ne 2 ]; then
+        echo "Incorrect number of command-line arguments to produceOutputs" >&2
+        exit 3
+fi
+
+for val in $(cat $1); do
+		temp=$(mktemp /tmp/tempfile.XXXXX)
+        if [ ! -r ${val}.out ]; then
+                        echo "Missing or unreadable .out files" 1>&2
+                        exit 3
+        fi
+
+        if [ -r ${val}.args ]; then
+                        
+                       $2 $(cat ${val}.args)>$temp
+
+                        #compare
+                        d=$( diff $temp ${val}.out |wc -c)
+                        if [ ${d} -ne 0 ]; then
+                                echo "Test failed: ${val}"
+                                echo "Args:"
+                                cat ${val}.args
+                                echo "Expected:"
+                                cat ${val}.out
+                                echo "Actual:"
+                                cat $temp
+                        fi
+                
+        fi
+	
+	rm $temp
+
+done
